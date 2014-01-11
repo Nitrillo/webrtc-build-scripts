@@ -7,7 +7,8 @@ set -e
 #
 cd $(dirname $0)
 SCRIPT_HOME=$(pwd)
-export WEBRTC_OUT=out_mac/Debug
+export OUTPUT_DIR=out_osx
+export WEBRTC_OUT=$OUTPUT_DIR/Debug
 
 gclient config http://webrtc.googlecode.com/svn/trunk
 echo "target_os = ['mac']" >> .gclient
@@ -16,7 +17,7 @@ $SCRIPT_HOME/get-openssl.sh
 cd trunk
 export GYP_DEFINES="enable_tracing=1 build_with_libjingle=1 build_with_chromium=0 libjingle_objc=1 OS=mac target_arch=x64"
 export GYP_GENERATORS="ninja"
-export GYP_GENERATOR_FLAGS="output_dir=out_mac"
+export GYP_GENERATOR_FLAGS="output_dir=$OUTPUT_DIR"
 export GYP_CROSSCOMPILE=1
 perl -0pi -e 's/gdwarf-2/g/g' tools/gyp/pylib/gyp/xcode_emulation.py
 perl -0pi -e 's/\$\(SDKROOT\)\/usr\/lib\/libcrypto\.dylib/-lcrypto/g' talk/libjingle.gyp
@@ -40,7 +41,7 @@ done
 $AR -q libfattycakes.a *.o
 cd $ROOT
 
-ARTIFACT=out_mac/artifact
+ARTIFACT=$OUTPUT_DIR/artifact
 rm -rf $ARTIFACT || echo "clean $ARTIFACT"
 mkdir -p $ARTIFACT/lib
 mkdir -p $ARTIFACT/include

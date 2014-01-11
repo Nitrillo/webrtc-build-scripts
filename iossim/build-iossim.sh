@@ -17,7 +17,7 @@ gclient revert
 gclient sync
 perl -i -wpe "s/target\_os \= \[\'mac\'\]/target\_os \= \[\'ios\', \'mac\']/g" .gclient
 gclient sync
-export OUTPUT_DIR=out_sim
+export OUTPUT_DIR=out_iossim
 cd $WEBRTC_ROOT
 export GYP_DEFINES="\
 build_with_libjingle=1 \

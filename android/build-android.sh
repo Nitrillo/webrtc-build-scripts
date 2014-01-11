@@ -10,8 +10,9 @@ gclient sync --nohooks
 cd $BRANCH
 ARCHS="arm"
 BUILD_MODE=Release
-DEST_DIR=out/android
+DEST_DIR=out_android/artifact
 LIBS_DEST=$DEST_DIR/libs
+HEADERS_DEST=$DEST_DIR/include
 rm -rf $LIBS_DEST || echo "Clean $LIBS_DEST"
 mkdir -p $LIBS_DEST
 
@@ -42,17 +43,17 @@ for ARCH in $ARCHS; do
     )
 done
 
+export REVISION=`svn info | grep Revision | cut -f2 -d: | tr -d ' '`
+echo "WEBRTC_REVISION=$REVISION" > build.properties
+
 cp $BASE_PATH/$BRANCH/out/$BUILD_MODE/*.jar $LIBS_DEST
 
 HEADERS=`find webrtc third_party talk -name *.h | grep -v android_tools`
-HEADERS_DEST=$DEST_DIR/include
 while read -r header; do
     mkdir -p $HEADERS_DEST/`dirname $header`
     cp $header $HEADERS_DEST/`dirname $header`
 done <<< "$HEADERS"
 
-tar cjf android-webrtc.tar.bz2 -C $DEST_DIR .
+cd $BASE_PATH/$BRANCH/$DEST_DIR
+tar cjf fattycakes-$REVISION.tar.bz2 libs include
 
-cd $BASE_PATH
-REVISION=`svn info $BRANCH | grep Revision | cut -f2 -d: | tr -d ' '`
-echo "WEBRTC_REVISION=$REVISION" > build.properties
