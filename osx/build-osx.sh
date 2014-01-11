@@ -45,7 +45,7 @@ ARTIFACT=$OUTPUT_DIR/artifact
 rm -rf $ARTIFACT || echo "clean $ARTIFACT"
 mkdir -p $ARTIFACT/lib
 mkdir -p $ARTIFACT/include
-cp $FATTYCAKES_OUT/libfattycakes.a out_mac/artifact/lib
+cp $FATTYCAKES_OUT/libfattycakes.a $OUTPUT_DIR/artifact/lib
 HEADERS_OUT=`find net talk third_party webrtc -name *.h`
 for HEADER in $HEADERS_OUT
 do
