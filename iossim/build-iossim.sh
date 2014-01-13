@@ -38,8 +38,9 @@ fi
 # hop up one level and apply patches before continuing
 cd $ROOT
 PATCHES=`find $PWD/patches -name *.diff`
+PATCH_PREFIX=`git rev-parse --show-prefix`
 for PATCH in $PATCHES; do
-    git apply $PATCH || { echo "patch $PATCH failed to patch! panic and die!" ; exit 1; }
+    git apply --verbose --directory=${PATCH_PREFIX} $PATCH || { echo "patch $PATCH failed to patch! panic and die!" ; exit 1; }
 done
 
 cd $WEBRTC_ROOT
