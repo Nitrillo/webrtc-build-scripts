@@ -7,8 +7,9 @@ set -e
 #
 cd $(dirname $0)
 SCRIPT_HOME=$(pwd)
+export BUILD_MODE=Release
 export OUTPUT_DIR=out_osx
-export WEBRTC_OUT=$OUTPUT_DIR/Debug
+export WEBRTC_OUT=$OUTPUT_DIR/$BUILD_MODE
 
 gclient config http://webrtc.googlecode.com/svn/trunk
 echo "target_os = ['mac']" >> .gclient
