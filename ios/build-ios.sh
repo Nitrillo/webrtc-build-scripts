@@ -41,8 +41,6 @@ for PATCH in $PATCHES; do
     git apply --verbose --directory=${PATCH_PREFIX} ${PATCH} || { echo "patch $PATCH failed to patch! panic and die!" ; exit 1; }
 done
 
-exit 1
-
 cd $WEBRTC_ROOT
 gclient runhooks
 ninja -v -C out_ios/$CONFIGURATION all || { echo "ninja build failed. booooooooo."; exit 1; }
