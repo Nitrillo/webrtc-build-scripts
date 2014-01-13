@@ -7,19 +7,19 @@ diff --git a/trunk/webrtc/modules/audio_device/ios/audio_device_ios.cc b/trunk/w
  #include "webrtc/system_wrappers/interface/trace.h"
  
  namespace webrtc {
-+	
++
 +void interruptionListenerCallback (
 +								   void    *inUserData,
 +								   UInt32  interruptionState
 +								   ) {
 +	AudioDeviceIPhone *controller = (AudioDeviceIPhone *) inUserData;
-+	
++
 +	if (interruptionState == kAudioSessionBeginInterruption) {
 +	} else if (interruptionState == kAudioSessionEndInterruption) {
 +		controller->ResetAudioDevice();
 +	}
 +}
-+	
++
  AudioDeviceIPhone::AudioDeviceIPhone(const int32_t id)
      :
      _ptrAudioBuffer(NULL),
@@ -37,7 +37,7 @@ diff --git a/trunk/webrtc/modules/audio_device/ios/audio_device_ios.cc b/trunk/w
          // todo: Call AudioUnitReset() here and empty all buffers?
          return 0;
      }
-+	
++
 +	AudioSessionInitialize(NULL, NULL, interruptionListenerCallback, this);
 +	UInt32 audioCategory = kAudioSessionCategory_PlayAndRecord;
 +	UInt32 propertyFalse = 0;
@@ -47,7 +47,7 @@ diff --git a/trunk/webrtc/modules/audio_device/ios/audio_device_ios.cc b/trunk/w
 +	AudioSessionSetProperty(kAudioSessionProperty_OtherMixableAudioShouldDuck,
 +							sizeof(propertyFalse), &propertyFalse);
 +	AudioSessionSetActive(true);
-+	
++
 +	SetLoudspeakerStatus(true);
  
      // Create Voice Processing Audio Unit
