@@ -27,7 +27,7 @@ for ARCH in $ARCHS; do
                             include_tests=0 \
                             $GYP_DEFINES"
 	gclient runhooks --force
-	ninja -C out/$BUILD_MODE all
+	ninja -v -C out/$BUILD_MODE all
 	
 	AR=${BASE_PATH}/$BRANCH/`./third_party/android_tools/ndk/ndk-which ar`
 	cd $LIBS_DEST
