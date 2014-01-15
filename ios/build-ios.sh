@@ -43,7 +43,7 @@ done
 
 cd $WEBRTC_ROOT
 gclient runhooks
-ninja -v -C out_ios/$CONFIGURATION all || { echo "ninja build failed. booooooooo."; exit 1; }
+ninja -v -C out_ios/$CONFIGURATION AppRTCDemo || { echo "ninja build failed. booooooooo."; exit 1; }
 
 AR=`xcrun -f ar`
 
