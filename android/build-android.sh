@@ -1,6 +1,45 @@
 #!/bin/bash -x
 set -e
 
+
+# Return the type of a given file as returned by /usr/bin/file
+# $1: file path
+function get_file_type () {
+    /usr/bin/file -b "$1" 2>/dev/null
+}
+
+# Returns success iff a given file is a thin archive.
+# $1: file type as returned by get_file_type()
+function is_file_type_thin_archive () {
+  # The output of /usr/bin/file will depend on the OS:
+  # regular Linux -> 'current ar archive'
+  # regular Darwin -> 'current ar archive random library'
+  # thin Linux -> 'data'
+  # thin Darwin -> 'data'
+  case "$1" in
+    *"ar archive"*)
+      return 1
+      ;;
+    "data")
+      return 0
+      ;;
+    *)
+      echo "ERROR: Unknown '$FILE_TYPE' file type" >&2
+      return 2
+      ;;
+  esac
+}
+
+function copy_thin() {
+    AR=$1
+    LIB=$2
+    DEST=$3
+    OBJECTS=`$AR -t $LIB`
+    for OBJECT in $OBJECTS; do
+	cp $OBJECT $DEST
+    done
+}
+
 BASE_PATH=$(pwd)
 BRANCH=trunk
 gclient config https://webrtc.googlecode.com/svn/trunk
@@ -11,7 +50,7 @@ cd $BRANCH
 ARCHS="arm"
 BUILD_MODE=Release
 DEST_DIR=out_android/artifact
-LIBS_DEST=$DEST_DIR/libs
+LIBS_DEST=$DEST_DIR/lib
 HEADERS_DEST=$DEST_DIR/include
 rm -rf $LIBS_DEST || echo "Clean $LIBS_DEST"
 mkdir -p $LIBS_DEST
@@ -31,8 +70,14 @@ for ARCH in $ARCHS; do
 	
 	AR=${BASE_PATH}/$BRANCH/`./third_party/android_tools/ndk/ndk-which ar`
 	cd $LIBS_DEST
-	for a in `ls $BASE_PATH/$BRANCH/out/$BUILD_MODE/*.a` ; do 
-	    $AR -x $a
+	LIBS=`find $BASE_PATH/$BRANCH/out/$BUILD_MODE -name '*.a'`
+	for LIB in $LIBS; do
+	    LIB_TYPE=$(get_file_type "$LIB")
+	    if is_file_type_thin_archive "$LIB_TYPE"; then
+		copy_thin $AR $LIB `pwd`
+	    else
+		$AR -x $LIB
+	    fi
 	done
 	for a in `ls *.o | grep gtest` ; do 
 	    rm $a
@@ -46,7 +91,7 @@ done
 export REVISION=`svn info | grep Revision | cut -f2 -d: | tr -d ' '`
 echo "WEBRTC_REVISION=$REVISION" > build.properties
 
-cp $BASE_PATH/$BRANCH/out/$BUILD_MODE/*.jar $LIBS_DEST
+cp -v $BASE_PATH/$BRANCH/out/$BUILD_MODE/*.jar $LIBS_DEST
 
 HEADERS=`find webrtc third_party talk -name *.h | grep -v android_tools`
 while read -r header; do
@@ -55,5 +100,5 @@ while read -r header; do
 done <<< "$HEADERS"
 
 cd $BASE_PATH/$BRANCH/$DEST_DIR
-tar cjf fattycakes-$REVISION.tar.bz2 libs include
+tar cjf fattycakes-$REVISION.tar.bz2 lib include
 
