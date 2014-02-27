@@ -1,7 +1,6 @@
 #!/bin/bash -x
 set -e
 
-
 # Return the type of a given file as returned by /usr/bin/file
 # $1: file path
 function get_file_type () {
@@ -40,11 +39,17 @@ function copy_thin() {
     done
 }
 
+if [ -z $WEBRTC_REVISION ]; then
+    export SYNC_REVISION=""
+else
+    export SYNC_REVISION="-r $WEBRTC_REVISION"
+fi
+
 BASE_PATH=$(pwd)
 BRANCH=trunk
 gclient config https://webrtc.googlecode.com/svn/trunk
 echo "target_os = ['android', 'unix']" >> .gclient
-gclient sync --nohooks
+gclient sync --nohooks $SYNC_REVISION
 
 cd $BRANCH
 ARCHS="arm"
