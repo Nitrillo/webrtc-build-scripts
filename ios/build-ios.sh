@@ -23,7 +23,17 @@ gclient sync $SYNC_REVISION
 perl -i -wpe "s/target\_os \= \[\'mac\'\]/target\_os \= \[\'ios\', \'mac\']/g" .gclient
 gclient sync $SYNC_REVISION
 cd $WEBRTC_ROOT
-export GYP_DEFINES="build_with_libjingle=1 build_with_chromium=0 libjingle_objc=1 OS=ios target_arch=armv7 enable_tracing=1"
+export GYP_DEFINES="build_with_libjingle=1 \
+build_with_chromium=0 \
+libjingle_objc=1 \
+OS=ios \
+target_arch=armv7 \
+enable_tracing=0"
+if [ "1" == "$DEBUG"]; then
+    export GYP_DEFINES="$GYP_DEFINES fastbuild=0"
+else
+    export GYP_DEFINES="$GYP_DEFINES fastbuild=1"
+fi
 export GYP_GENERATORS="ninja"
 export GYP_GENERATOR_FLAGS="output_dir=out_ios"
 export GYP_CROSSCOMPILE=1
