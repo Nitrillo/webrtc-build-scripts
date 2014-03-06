@@ -8,15 +8,21 @@ PWD=`pwd`
 ROOT=$PWD
 WEBRTC_ROOT=$ROOT/trunk
 
+if [ -z $WEBRTC_REVISION ]; then
+    export SYNC_REVISION=""
+else
+    export SYNC_REVISION="-r $WEBRTC_REVISION"
+fi
+
 if [ -z $CONFIGURATION ]; then
     CONFIGURATION=Release
 fi
 gclient config http://webrtc.googlecode.com/svn/trunk
 echo "target_os = ['mac']" >> .gclient
 gclient revert
-gclient sync
+gclient sync $SYNC_REVISION
 perl -i -wpe "s/target\_os \= \[\'mac\'\]/target\_os \= \[\'ios\', \'mac\']/g" .gclient
-gclient sync
+gclient sync $SYNC_REVISION
 export OUTPUT_DIR=out_iossim
 cd $WEBRTC_ROOT
 export GYP_DEFINES="\
