@@ -11,12 +11,26 @@ export BUILD_MODE=Release
 export OUTPUT_DIR=out_osx
 export WEBRTC_OUT=$OUTPUT_DIR/$BUILD_MODE
 
+function retry_cmd
+{
+    RETRIES=3
+    RETCODE=-1
+    set +e
+    while [ $RETRIES -gt 0 ] && [ $RETCODE -ne 0 ]; do
+        $RETRY_CMD
+        RETCODE=$?
+        RETRIES=`expr $RETRIES - 1`
+    done
+    set -e
+}
+
 gclient config http://webrtc.googlecode.com/svn/trunk
 echo "target_os = ['mac']" >> .gclient
-gclient sync
+RETRY_CMD="gclient sync"
+retry_cmd
 $SCRIPT_HOME/get-openssl.sh
 cd trunk
-export GYP_DEFINES="enable_tracing=1 build_with_libjingle=1 build_with_chromium=0 libjingle_objc=1 OS=mac target_arch=x64"
+export GYP_DEFINES="enable_tracing=1 build_with_libjingle=1 build_with_chromium=0 libjingle_objc=1 OS=mac target_arch=x64 use_system_ssl=1 use_openssl=0 use_nss=0"
 export GYP_GENERATORS="ninja"
 export GYP_GENERATOR_FLAGS="output_dir=$OUTPUT_DIR"
 export GYP_CROSSCOMPILE=1

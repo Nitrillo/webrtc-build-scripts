@@ -16,12 +16,30 @@ fi
 if [ -z $CONFIGURATION ]; then
     CONFIGURATION=Release-iphoneos
 fi
+
+function retry_cmd
+{
+    RETRIES=3
+    RETCODE=-1
+    set +e
+    while [ $RETRIES -gt 0 ] && [ $RETCODE -ne 0 ]; do
+	$RETRY_CMD
+	RETCODE=$?
+	RETRIES=`expr $RETRIES - 1`
+    done
+    set -e
+}
+
 gclient config http://webrtc.googlecode.com/svn/trunk
+
 echo "target_os = ['mac']" >> .gclient
-gclient revert
-gclient sync $SYNC_REVISION
+RETRY_CMD="gclient revert"
+retry_cmd
+RETRY_CMD="gclient sync $SYNC_REVISION"
+retry_cmd
 perl -i -wpe "s/target\_os \= \[\'mac\'\]/target\_os \= \[\'ios\', \'mac\']/g" .gclient
-gclient sync $SYNC_REVISION
+#rerun seync with perl substituions
+retry_cmd
 cd $WEBRTC_ROOT
 export GYP_DEFINES="build_with_libjingle=1 \
 build_with_chromium=0 \
