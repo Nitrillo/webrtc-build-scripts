@@ -29,6 +29,9 @@ function retry_cmd
         RETRIES=`expr $RETRIES - 1`
     done
     set -e
+    if [ $RETCODE -ne 0]; then
+	exit $RETCODE
+    fi
 }
 
 gclient config http://webrtc.googlecode.com/svn/trunk
