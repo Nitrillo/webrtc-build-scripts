@@ -69,6 +69,7 @@ for ARCH in $ARCHS; do
                             build_with_chromium=0 \
                             enable_tracing=1 \
                             include_tests=0 \
+                            enable_android_opensl=0 \
                             $GYP_DEFINES"
 	gclient runhooks --force
 	ninja -v -C out/$BUILD_MODE all
