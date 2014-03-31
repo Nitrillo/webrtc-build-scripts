@@ -1,0 +1,17 @@
+Index: videoadapter.cc
+===================================================================
+diff --git a/trunk/talk/media/base/videoadapter.cc b/trunk/talk/media/base/videoadapter.cc
+--- a/trunk/talk/media/base/videoadapter.cc	(revision 5550)
++++ b/trunk/talk/media/base/videoadapter.cc	(working copy)
+@@ -107,7 +107,10 @@
+     if (diff < 0) {
+       diff = diff * kUpBias;
+     }
+-    if (diff < best_distance) {
++    if (diff < best_distance &&
++        static_cast<int>(scale * width) % 16 == 0 &&
++        static_cast<int>(scale * height) % 16 == 0)
++    {
+       best_distance = diff;
+       best_scale = scale;
+       if (best_distance == 0) {  // Found exact match.
