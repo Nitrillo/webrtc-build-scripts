@@ -60,7 +60,7 @@ for PATCH in $PATCHES; do
 done
 
 cd $BRANCH
-ARCHS="arm"
+ARCHS="arm x86"
 BUILD_MODE=Release
 DEST_DIR=out_android/artifact
 LIBS_DEST=$DEST_DIR/lib
