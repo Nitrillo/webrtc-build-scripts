@@ -65,13 +65,20 @@ BUILD_MODE=Release
 DEST_DIR=out_android/artifact
 LIBS_DEST=$DEST_DIR/lib
 HEADERS_DEST=$DEST_DIR/include
-rm -rf $LIBS_DEST || echo "Clean $LIBS_DEST"
-mkdir -p $LIBS_DEST
 
 
 for ARCH in $ARCHS; do
     (
 	rm -rf out/$BUILD_MODE
+  rm -rf $LIBS_DEST || echo "Clean $LIBS_DEST"
+  mkdir -p $LIBS_DEST
+
+  if [ "$ARCH" == "arm" ]; then
+    ABI="armeabi"
+  else
+    ABI="x86"
+  fi
+
 	source build/android/envsetup.sh --target-arch=$ARCH
 
 	export GYP_DEFINES="build_with_libjingle=1 \
@@ -83,7 +90,7 @@ for ARCH in $ARCHS; do
 	gclient runhooks --force
 	ninja -v -C out/$BUILD_MODE all
 	
-	AR=${BASE_PATH}/$BRANCH/`./third_party/android_tools/ndk/ndk-which ar`
+	AR=${BASE_PATH}/`./ndk-which ar $ABI`
 	cd $LIBS_DEST
 	LIBS=`find $BASE_PATH/$BRANCH/out/$BUILD_MODE -name '*.a'`
 	for LIB in $LIBS; do
