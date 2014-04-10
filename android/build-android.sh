@@ -60,7 +60,7 @@ for PATCH in $PATCHES; do
 done
 
 cd $BRANCH
-ARCHS="arm x86"
+ARCHS="arm ia32"
 BUILD_MODE=Release
 DEST_DIR=out_android/artifact
 LIBS_DEST=$DEST_DIR/lib
@@ -70,8 +70,6 @@ HEADERS_DEST=$DEST_DIR/include
 for ARCH in $ARCHS; do
     (
 	rm -rf out/$BUILD_MODE
-  rm -rf $LIBS_DEST || echo "Clean $LIBS_DEST"
-  mkdir -p $LIBS_DEST
 
   if [ "$ARCH" == "arm" ]; then
     ABI="armeabi"
@@ -86,6 +84,7 @@ for ARCH in $ARCHS; do
                             enable_tracing=1 \
                             include_tests=0 \
                             enable_android_opensl=0 \
+                			      target_arch=$ARCH \
                             $GYP_DEFINES"
 	gclient runhooks --force
 	ninja -v -C out/$BUILD_MODE all
