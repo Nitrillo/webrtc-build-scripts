@@ -90,7 +90,7 @@ for ARCH in $ARCHS; do
 	gclient runhooks --force
 	ninja -v -C out/$BUILD_MODE all
 	
-	AR=${BASE_PATH}/`./ndk-which ar $ABI`
+	AR=`NDK_ROOT=$BASE_PATH/$BRANCH/third_party/android_tools/ndk ${BASE_PATH}/ndk-which ar $ABI`
 	cd $LIBS_DEST
 	LIBS=`find $BASE_PATH/$BRANCH/out/$BUILD_MODE -name '*.a'`
 	for LIB in $LIBS; do

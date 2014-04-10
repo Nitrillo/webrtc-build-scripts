@@ -30,8 +30,8 @@ fi
 if [ "$ARCH" == "" ]; then
 	ARCH=armeabi
 fi
-ORIG="./trunk/third_party/android_tools/ndk/ndk-which"
-MYNDKDIR=`dirname $ORIG`
+
+MYNDKDIR=$NDK_ROOT
 
 TMPDIR=`mktemp -d`
 
