@@ -66,6 +66,9 @@ DEST_DIR=out_android/artifact
 LIBS_DEST=$DEST_DIR/lib
 HEADERS_DEST=$DEST_DIR/include
 
+rm -rf $DEST_DIR
+mkdir -p $LIBS_DEST
+mkdir -p $HEADERS_DEST
 
 for ARCH in $ARCHS; do
     (
