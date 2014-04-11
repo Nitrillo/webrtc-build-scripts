@@ -73,8 +73,10 @@ for ARCH in $ARCHS; do
 
   if [ "$ARCH" == "arm" ]; then
     ABI="armeabi"
+    LIBNAME="arm"
   else
     ABI="x86"
+    LIBNAME="x86"
   fi
 
 	source build/android/envsetup.sh --target-arch=$ARCH
@@ -103,7 +105,7 @@ for ARCH in $ARCHS; do
 	for a in `ls *.o | grep gtest` ; do 
 	    rm $a
 	done
-	$AR -q libwebrtc_$ARCH.a *.o
+	$AR -q libwebrtc_$LIBNAME.a *.o
 	rm -f *.o
 	cd $BASE_PATH/$BRANCH
     )
