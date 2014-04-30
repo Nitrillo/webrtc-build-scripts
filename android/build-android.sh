@@ -60,18 +60,28 @@ for PATCH in $PATCHES; do
 done
 
 cd $BRANCH
-ARCHS="arm"
+ARCHS="arm ia32"
 BUILD_MODE=Release
 DEST_DIR=out_android/artifact
 LIBS_DEST=$DEST_DIR/lib
 HEADERS_DEST=$DEST_DIR/include
-rm -rf $LIBS_DEST || echo "Clean $LIBS_DEST"
-mkdir -p $LIBS_DEST
 
+rm -rf $DEST_DIR
+mkdir -p $LIBS_DEST
+mkdir -p $HEADERS_DEST
 
 for ARCH in $ARCHS; do
     (
 	rm -rf out/$BUILD_MODE
+
+  if [ "$ARCH" == "arm" ]; then
+    ABI="armeabi"
+    LIBNAME="arm"
+  else
+    ABI="x86"
+    LIBNAME="x86"
+  fi
+
 	source build/android/envsetup.sh --target-arch=$ARCH
 
 	export GYP_DEFINES="build_with_libjingle=1 \
@@ -79,11 +89,12 @@ for ARCH in $ARCHS; do
                             enable_tracing=1 \
                             include_tests=0 \
                             enable_android_opensl=0 \
+                			      target_arch=$ARCH \
                             $GYP_DEFINES"
 	gclient runhooks --force
 	ninja -v -C out/$BUILD_MODE all
 	
-	AR=${BASE_PATH}/$BRANCH/`./third_party/android_tools/ndk/ndk-which ar`
+	AR=`NDK_ROOT=$BASE_PATH/$BRANCH/third_party/android_tools/ndk ${BASE_PATH}/ndk-which ar $ABI`
 	cd $LIBS_DEST
 	LIBS=`find $BASE_PATH/$BRANCH/out/$BUILD_MODE -name '*.a'`
 	for LIB in $LIBS; do
@@ -97,7 +108,7 @@ for ARCH in $ARCHS; do
 	for a in `ls *.o | grep gtest` ; do 
 	    rm $a
 	done
-	$AR -q libwebrtc_$ARCH.a *.o
+	$AR -q libwebrtc_$LIBNAME.a *.o
 	rm -f *.o
 	cd $BASE_PATH/$BRANCH
     )
