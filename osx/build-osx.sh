@@ -10,6 +10,11 @@ SCRIPT_HOME=$(pwd)
 export BUILD_MODE=Release
 export OUTPUT_DIR=out_osx
 export WEBRTC_OUT=$OUTPUT_DIR/$BUILD_MODE
+if [ -z $WEBRTC_REVISION ]; then
+    export SYNC_REVISION=""
+else
+    export SYNC_REVISION="-r $WEBRTC_REVISION"
+fi
 
 function retry_cmd
 {
@@ -22,14 +27,14 @@ function retry_cmd
         RETRIES=`expr $RETRIES - 1`
     done
     set -e
-    if [ $RETCODE -ne 0]; then
+    if [ $RETCODE -ne 0 ]; then
 	exit $RETCODE
     fi
 }
 
 gclient config http://webrtc.googlecode.com/svn/trunk
 echo "target_os = ['mac']" >> .gclient
-RETRY_CMD="gclient sync"
+RETRY_CMD="gclient sync $SYNC_REVISION"
 retry_cmd
 $SCRIPT_HOME/get-openssl.sh
 cd trunk
