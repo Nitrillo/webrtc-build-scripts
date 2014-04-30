@@ -51,6 +51,14 @@ gclient config https://webrtc.googlecode.com/svn/trunk
 echo "target_os = ['android', 'unix']" >> .gclient
 gclient sync --nohooks $SYNC_REVISION
 
+# hop up one level and apply patches before continuing
+cd $BASE_PATH
+PATCHES=`find $BASE_PATH/patches -name *.diff`
+PATCH_PREFIX=`git rev-parse --show-prefix`
+for PATCH in $PATCHES; do
+    git apply --verbose --directory=${PATCH_PREFIX} ${PATCH} || { echo "patch $PATCH failed to patch! panic and die!" ; exit 1; }
+done
+
 cd $BRANCH
 ARCHS="arm"
 BUILD_MODE=Release
@@ -59,6 +67,7 @@ LIBS_DEST=$DEST_DIR/lib
 HEADERS_DEST=$DEST_DIR/include
 rm -rf $LIBS_DEST || echo "Clean $LIBS_DEST"
 mkdir -p $LIBS_DEST
+
 
 for ARCH in $ARCHS; do
     (
@@ -69,6 +78,7 @@ for ARCH in $ARCHS; do
                             build_with_chromium=0 \
                             enable_tracing=1 \
                             include_tests=0 \
+                            enable_android_opensl=0 \
                             $GYP_DEFINES"
 	gclient runhooks --force
 	ninja -v -C out/$BUILD_MODE all
