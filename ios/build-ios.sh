@@ -50,7 +50,7 @@ libjingle_objc=1 \
 OS=ios \
 target_arch=armv7 \
 enable_tracing=0"
-if [ "1" == "$DEBUG"]; then
+if [ "1" == "$DEBUG" ]; then
     export GYP_DEFINES="$GYP_DEFINES fastbuild=0"
 else
     export GYP_DEFINES="$GYP_DEFINES fastbuild=1"
