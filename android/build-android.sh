@@ -84,7 +84,7 @@ for ARCH in $ARCHS; do
 
 	source build/android/envsetup.sh --target-arch=$ARCH
 
-	export GYP_DEFINES="build_with_libjingle=1 \
+	export GYP_DEFINES="build_with_libjingle=1 OS=android \
                             build_with_chromium=0 \
                             enable_tracing=1 \
                             include_tests=0 \
