@@ -1,0 +1,14 @@
+Index: webrtcvideoengine.cc
+===================================================================
+diff --git a/trunk/talk/media/base/videoadapter.cc b/trunk/talk/media/base/videoadapter.cc
+--- a/trunk/talk/media/webrtc/webrtcvideoengine.cc	(revision 6166)
++++ b/trunk/talk/media/webrtc/webrtcvideoengine.cc	(working copy)
+@@ -3951,7 +3951,7 @@
+   // automatic resize needs to be turned off when screencasting and on when
+   // not screencasting.
+   // Don't allow automatic resizing for screencasting.
+-  bool automatic_resize = !is_screencast;
++  bool automatic_resize = false;
+   // Turn off VP8 frame dropping when screensharing as the current model does
+   // not work well at low fps.
+   bool vp8_frame_dropping = !is_screencast;
