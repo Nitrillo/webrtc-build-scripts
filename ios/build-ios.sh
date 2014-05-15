@@ -36,8 +36,10 @@ function retry_cmd
 gclient config http://webrtc.googlecode.com/svn/trunk
 
 echo "target_os = ['mac']" >> .gclient
+if [ "1" != "$NOPATCH" ]; then
 RETRY_CMD="gclient revert"
 retry_cmd
+fi
 RETRY_CMD="gclient sync $SYNC_REVISION"
 retry_cmd
 perl -i -wpe "s/target\_os \= \[\'mac\'\]/target\_os \= \[\'ios\', \'mac\']/g" .gclient
@@ -64,15 +66,16 @@ fi
 if [ -d out.huge ]; then
     rm -rf out.huge
 fi
-# hop up one level and apply patches before continuing
-cd $ROOT
-PATCHES=`find $PWD/patches -name *.diff`
-PATCH_PREFIX=`git rev-parse --show-prefix`
-for PATCH in $PATCHES; do
-    git apply --verbose --directory=${PATCH_PREFIX} ${PATCH} || { echo "patch $PATCH failed to patch! panic and die!" ; exit 1; }
-done
-
-cd $WEBRTC_ROOT
+if [ "1" != "$NOPATCH" ]; then
+    # hop up one level and apply patches before continuing
+    cd $ROOT
+    PATCHES=`find $PWD/patches -name *.diff`
+    PATCH_PREFIX=`git rev-parse --show-prefix`
+    for PATCH in $PATCHES; do
+        git apply --verbose --directory=${PATCH_PREFIX} ${PATCH} || { echo "patch $PATCH failed to patch! panic and die!" ; exit 1; }
+    done
+    cd $WEBRTC_ROOT
+fi
 gclient runhooks
 ninja -v -C out_ios/$CONFIGURATION AppRTCDemo || { echo "ninja build failed. booooooooo."; exit 1; }
 
