@@ -1,0 +1,40 @@
+Index: modules/video_coding/codecs/vp8/vp8_impl.cc
+===================================================================
+--- modules/video_coding/codecs/vp8/vp8_impl.cc	(revision 6239)
++++ modules/video_coding/codecs/vp8/vp8_impl.cc	(working copy)
+@@ -263,7 +263,7 @@
+       cpu_speed_ = -6;
+       break;
+   }
+-#if defined(WEBRTC_ARCH_ARM)
++#if defined(WEBRTC_ARCH_ARM) || defined(WEBRTC_ANDROID) || defined(WEBRTC_IOS)
+   // On mobile platform, always set to -12 to leverage between cpu usage
+   // and video quality
+   cpu_speed_ = -12;
+@@ -541,7 +541,7 @@
+   cfg.h = cfg.w = 0;  // set after decode
+ 
+   vpx_codec_flags_t flags = 0;
+-#ifndef WEBRTC_ARCH_ARM
++#if !defined(WEBRTC_ARCH_ARM) && !defined(WEBRTC_ANDROID)
+   flags = VPX_CODEC_USE_POSTPROC;
+   if (inst->codecSpecific.VP8.errorConcealmentOn) {
+     flags |= VPX_CODEC_USE_ERROR_CONCEALMENT;
+@@ -555,7 +555,7 @@
+     return WEBRTC_VIDEO_CODEC_MEMORY;
+   }
+ 
+-#ifndef WEBRTC_ARCH_ARM
++#if !defined(WEBRTC_ARCH_ARM) && !defined(WEBRTC_ANDROID)
+   vp8_postproc_cfg_t  ppcfg;
+   ppcfg.post_proc_flag = VP8_DEMACROBLOCK | VP8_DEBLOCK;
+   // Strength of deblocking filter. Valid range:[0,16]
+@@ -602,7 +602,7 @@
+   }
+ #endif
+ 
+-#ifndef WEBRTC_ARCH_ARM
++#if !defined(WEBRTC_ARCH_ARM) && !defined(WEBRTC_ANDROID)
+   if (!mfqe_enabled_ && codec_specific_info &&
+       codec_specific_info->codecSpecific.VP8.temporalIdx > 0) {
+     // Enable MFQE if we are receiving layers.
