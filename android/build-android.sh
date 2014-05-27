@@ -49,6 +49,7 @@ BASE_PATH=$(pwd)
 BRANCH=trunk
 gclient config https://webrtc.googlecode.com/svn/trunk
 echo "target_os = ['android', 'unix']" >> .gclient
+gclient revert
 gclient sync --nohooks $SYNC_REVISION
 
 # hop up one level and apply patches before continuing
