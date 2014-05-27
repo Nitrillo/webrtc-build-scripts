@@ -1,7 +1,8 @@
-Index: trunk/webrtc/modules/video_coding/codecs/vp8/vp8_impl.cc
+Index: vp8_impl.cc
 ===================================================================
---- trunk/webrtc/modules/video_coding/codecs/vp8/vp8_impl.cc	(revision 6239)
-+++ trunk/webrtc/modules/video_coding/codecs/vp8/vp8_impl.cc	(working copy)
+diff --git a/trunk/webrtc/modules/video_coding/codecs/vp8/vp8_impl.cc b/trunk/webrtc/modules/video_coding/codecs/vp8/vp8_impl.cc
+--- a/trunk/webrtc/modules/video_coding/codecs/vp8/vp8_impl.cc	(revision 6239)
++++ b/trunk/webrtc/modules/video_coding/codecs/vp8/vp8_impl.cc	(working copy)
 @@ -263,7 +263,7 @@
        cpu_speed_ = -6;
        break;
