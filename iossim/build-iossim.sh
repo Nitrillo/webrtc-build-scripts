@@ -52,7 +52,12 @@ build_with_chromium=0 \
 libjingle_objc=1 \
 OS=ios \
 target_arch=ia32 \
-enable_tracing=1"
+enable_tracing=0"
+if [ "1" == "$DEBUG" ]; then
+    export GYP_DEFINES="$GYP_DEFINES fastbuild=0"
+else
+    export GYP_DEFINES="$GYP_DEFINES fastbuild=1"
+fi
 export GYP_GENERATORS="ninja"
 export GYP_GENERATOR_FLAGS="output_dir=$OUTPUT_DIR"
 export GYP_CROSSCOMPILE=1
