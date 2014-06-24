@@ -39,6 +39,11 @@ retry_cmd
 $SCRIPT_HOME/get-openssl.sh
 cd trunk
 export GYP_DEFINES="enable_tracing=1 build_with_libjingle=1 build_with_chromium=0 libjingle_objc=1 OS=mac target_arch=x64 use_system_ssl=1 use_openssl=0 use_nss=0"
+if [ "1" == "$DEBUG" ]; then
+    export GYP_DEFINES="$GYP_DEFINES fastbuild=0"
+else
+    export GYP_DEFINES="$GYP_DEFINES fastbuild=1"
+fi
 export GYP_GENERATORS="ninja"
 export GYP_GENERATOR_FLAGS="output_dir=$OUTPUT_DIR"
 export GYP_CROSSCOMPILE=1
