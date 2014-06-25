@@ -33,6 +33,23 @@ function retry_cmd
     fi
 }
 
+function build_fatlib
+{
+    FATTYCAKES_OUT=out.huge
+    rm -rf $FATTYCAKES_OUT || echo "clean $FATTYCAKES_OUT"
+    mkdir -p $FATTYCAKES_OUT
+    cd $FATTYCAKES_OUT
+    for LIB in $LIBS_OUT
+    do
+        $AR -x $LIB
+    done
+    $AR -q libfattycakes_${FATLIB_ARCH}.a *.o
+
+    cd $WEBRTC_ROOT
+    cp $FATTYCAKES_OUT/libfattycakes_${FATLIB_ARCH}.a out_ios/artifact/lib
+    
+}
+
 gclient config http://webrtc.googlecode.com/svn/trunk
 
 echo "target_os = ['mac']" >> .gclient
@@ -77,27 +94,32 @@ if [ "1" != "$NOPATCH" ]; then
     cd $WEBRTC_ROOT
 fi
 gclient runhooks
-ninja -v -C out_ios/$CONFIGURATION AppRTCDemo || { echo "ninja build failed. booooooooo."; exit 1; }
 
 AR=`xcrun -f ar`
-
-LIBS_OUT=`find $PWD/out_ios/$CONFIGURATION -d 1 -name '*.a'`
-FATTYCAKES_OUT=out.huge
-rm -rf $FATTYCAKES_OUT || echo "clean $FATTYCAKES_OUT"
-mkdir -p $FATTYCAKES_OUT
-cd $FATTYCAKES_OUT
-for LIB in $LIBS_OUT
-do
-    $AR -x $LIB
-done
-$AR -q libfattycakes.a *.o
-cd $WEBRTC_ROOT
 
 ARTIFACT=out_ios/artifact
 rm -rf $ARTIFACT || echo "clean $ARTIFACT"
 mkdir -p $ARTIFACT/lib
 mkdir -p $ARTIFACT/include
-cp $FATTYCAKES_OUT/libfattycakes.a out_ios/artifact/lib
+
+if [ "1" != "$SKIP_ARMV7S" ]; then
+find out out_ios -name "*.ninja" -exec sed -i "" -e "s/armv7\ /armv7s\ /g" '{}' \;
+ninja -v -C out_ios/$CONFIGURATION AppRTCDemo || { echo "ninja build failed for armv7s"; exit 1; }
+
+LIBS_OUT=`find $PWD/out_ios/$CONFIGURATION -d 1 -name '*.a'`
+FATLIB_ARCH=armv7s
+build_fatlib
+find out out_ios -name "*.ninja" -exec sed -i "" -e "s/armv7s\ /armv7\ /g" '{}' \;
+fi
+
+ninja -v -C out_ios/$CONFIGURATION AppRTCDemo || { echo "ninja build failed. booooooooo."; exit 1; }
+
+LIBS_OUT=`find $PWD/out_ios/$CONFIGURATION -d 1 -name '*.a'`
+FATLIB_ARCH=armv7
+build_fatlib
+
+cd $WEBRTC_ROOT
+
 HEADERS_OUT=`find net talk third_party webrtc -name *.h`
 for HEADER in $HEADERS_OUT
 do
