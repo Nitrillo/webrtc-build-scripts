@@ -92,6 +92,11 @@ for ARCH in $ARCHS; do
                             enable_android_opensl=0 \
                 			      target_arch=$ARCH \
                             $GYP_DEFINES"
+    if [ "1" == "$DEBUG" ]; then
+        export GYP_DEFINES="$GYP_DEFINES fastbuild=0"
+    else
+        export GYP_DEFINES="$GYP_DEFINES fastbuild=1"
+    fi
 	gclient runhooks --force
 	ninja -v -C out/$BUILD_MODE all
 	
