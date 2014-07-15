@@ -46,8 +46,11 @@ else
 fi
 
 BASE_PATH=$(pwd)
-BRANCH=trunk
+WEBRTC_BRANCH=3.54
+WEBRTC_ROOT=$ROOT/trunk
 gclient config https://webrtc.googlecode.com/svn/trunk
+perl -i -wpe "s/svn\/trunk/svn\/branches\/${WEBRTC_BRANCH}/g" .gclient
+
 echo "target_os = ['android', 'unix']" >> .gclient
 gclient revert
 gclient sync --nohooks $SYNC_REVISION
@@ -60,7 +63,7 @@ for PATCH in $PATCHES; do
     git apply --verbose --directory=${PATCH_PREFIX} ${PATCH} || { echo "patch $PATCH failed to patch! panic and die!" ; exit 1; }
 done
 
-cd $BRANCH
+cd ${WEBRTC_ROOT}
 ARCHS="arm ia32"
 BUILD_MODE=Release
 DEST_DIR=out_android/artifact
@@ -100,9 +103,9 @@ for ARCH in $ARCHS; do
 	gclient runhooks --force
 	ninja -v -C out/$BUILD_MODE all
 	
-	AR=`NDK_ROOT=$BASE_PATH/$BRANCH/third_party/android_tools/ndk ${BASE_PATH}/ndk-which ar $ABI`
+	AR=`NDK_ROOT=${WEBRTC_ROOT}/third_party/android_tools/ndk ${BASE_PATH}/ndk-which ar $ABI`
 	cd $LIBS_DEST
-	LIBS=`find $BASE_PATH/$BRANCH/out/$BUILD_MODE -name '*.a'`
+	LIBS=`find ${WEBRTC_ROOT}/out/$BUILD_MODE -name '*.a'`
 	for LIB in $LIBS; do
 	    LIB_TYPE=$(get_file_type "$LIB")
 	    if is_file_type_thin_archive "$LIB_TYPE"; then
@@ -116,14 +119,14 @@ for ARCH in $ARCHS; do
 	done
 	$AR -q libwebrtc_$LIBNAME.a *.o
 	rm -f *.o
-	cd $BASE_PATH/$BRANCH
+	cd ${WEBRTC_ROOT}
     )
 done
 
 export REVISION=`svn info | grep Revision | cut -f2 -d: | tr -d ' '`
 echo "WEBRTC_REVISION=$REVISION" > build.properties
 
-cp -v $BASE_PATH/$BRANCH/out/$BUILD_MODE/*.jar $LIBS_DEST
+cp -v ${WEBRTC_ROOT}/out/$BUILD_MODE/*.jar $LIBS_DEST
 
 HEADERS=`find webrtc third_party talk -name *.h | grep -v android_tools`
 while read -r header; do
@@ -131,6 +134,6 @@ while read -r header; do
     cp $header $HEADERS_DEST/`dirname $header`
 done <<< "$HEADERS"
 
-cd $BASE_PATH/$BRANCH/$DEST_DIR
+cd ${WEBRTC_ROOT}/$DEST_DIR
 tar cjf fattycakes-$REVISION.tar.bz2 lib include
 
