@@ -9,6 +9,11 @@ cd $(dirname $0)
 SCRIPT_HOME=$(pwd)
 export BUILD_MODE=Release
 export OUTPUT_DIR=out_osx
+
+ROOT=${SCRIPT_HOME}
+WEBRTC_BRANCH=3.54
+WEBRTC_ROOT=$ROOT/trunk
+
 export WEBRTC_OUT=$OUTPUT_DIR/$BUILD_MODE
 if [ -z $WEBRTC_REVISION ]; then
     export SYNC_REVISION=""
@@ -33,11 +38,13 @@ function retry_cmd
 }
 
 gclient config http://webrtc.googlecode.com/svn/trunk
+perl -i -wpe "s/svn\/trunk/svn\/branches\/${WEBRTC_BRANCH}/g" .gclient
+
 echo "target_os = ['mac']" >> .gclient
 RETRY_CMD="gclient sync $SYNC_REVISION"
 retry_cmd
 $SCRIPT_HOME/get-openssl.sh
-cd trunk
+cd ${WEBRTC_ROOT}
 export GYP_DEFINES="enable_tracing=1 build_with_libjingle=1 build_with_chromium=0 libjingle_objc=1 OS=mac target_arch=x64 use_system_ssl=1 use_openssl=0 use_nss=0"
 if [ "1" == "$DEBUG" ]; then
     export GYP_DEFINES="$GYP_DEFINES fastbuild=0"
@@ -85,6 +92,7 @@ done
 cd $ROOT
 REVISION=`svn info $BRANCH | grep Revision | cut -f2 -d: | tr -d ' '`
 echo "WEBRTC_REVISION=$REVISION" > build.properties
+echo "WEBRTC_VERSION=${WEBRTC_BRANCH}" >> build.properties
 
 cd $ARTIFACT
 tar cjf fattycakes-$REVISION.tar.bz2 lib include
