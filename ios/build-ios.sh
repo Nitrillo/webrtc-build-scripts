@@ -6,6 +6,7 @@
 #
 PWD=`pwd`
 ROOT=$PWD
+WEBRTC_BRANCH=3.54
 WEBRTC_ROOT=$ROOT/trunk
 if [ -z $WEBRTC_REVISION ]; then
     export SYNC_REVISION=""
@@ -51,6 +52,7 @@ function build_fatlib
 }
 
 gclient config http://webrtc.googlecode.com/svn/trunk
+perl -i -wpe "s/svn\/trunk/svn\/branches\/${WEBRTC_BRANCH}/g" .gclient
 
 echo "target_os = ['mac']" >> .gclient
 if [ "1" != "$NOPATCH" ]; then
@@ -131,6 +133,7 @@ done
 cd $WEBRTC_ROOT
 REVISION=`svn info $BRANCH | grep Revision | cut -f2 -d: | tr -d ' '`
 echo "WEBRTC_REVISION=$REVISION" > build.properties
+echo "WEBRTC_VERSION=${WEBRTC_BRANCH}" >> build.properties
 
 cd $ARTIFACT
 tar cjf fattycakes-$REVISION.tar.bz2 lib include
