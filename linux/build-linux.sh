@@ -1,15 +1,26 @@
 #!/bin/bash -ex
-
-gclient config http://webrtc.googlecode.com/svn/trunk
-gclient sync --force
-cd trunk
-BUILD_OUT=out/Debug
-ninja -C $BUILD_OUT -t clean
-ninja -C $BUILD_OUT all
-
 PWD=`pwd`
 ROOT=$PWD
-LIBS_OUT=`find $ROOT/$BUILD_OUT -name '*.a'`
+WEBRTC_BRANCH=3.54
+WEBRTC_ROOT=$ROOT/trunk
+
+gclient config http://webrtc.googlecode.com/svn/trunk
+perl -i -wpe "s/svn\/trunk/svn\/branches\/${WEBRTC_BRANCH}/g" .gclient
+
+if [ "1" == "$DEBUG" ]; then
+    export GYP_DEFINES="$GYP_DEFINES fastbuild=0"
+else
+    export GYP_DEFINES="$GYP_DEFINES fastbuild=1"
+fi
+
+
+gclient sync --force
+cd ${WEBRTC_ROOT}
+BUILD_OUT=out/Debug
+ninja -C $BUILD_OUT -t clean
+ninja -v -C $BUILD_OUT all
+
+LIBS_OUT=`find $WEBRTC_ROOT/$BUILD_OUT -name '*.a'`
 FATTYCAKES_OUT=out.huge
 rm -rf $FATTYCAKES_OUT || echo "clean $FATTYCAKES_OUT"
 mkdir -p $FATTYCAKES_OUT
@@ -31,7 +42,7 @@ done
 $AR -q libfattycakes.a *.o
 cd $ROOT
 
-
+cd ${WEBRTC_ROOT}
 ARTIFACT=out/artifact
 rm -rf $ARTIFACT || echo "clean $ARTIFACT"
 mkdir -p $ARTIFACT/lib
@@ -45,11 +56,11 @@ do
     cp $HEADER $ARTIFACT/include/$HEADER
 done
 
-cd $ROOT
 REVISION=`svn info $BRANCH | grep Revision | cut -f2 -d: | tr -d ' '`
 echo "WEBRTC_REVISION=$REVISION" > build.properties
+echo "WEBRTC_VERSION=${WEBRTC_BRANCH}" >> build.properties
 
 cd $ARTIFACT
-tar cjf fattycakes-linux-$REVISION.tar.bz2 lib include
+tar cjf fattycakes-$REVISION.tar.bz2 lib include
 
 
