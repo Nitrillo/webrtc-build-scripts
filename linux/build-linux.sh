@@ -13,10 +13,12 @@ else
     export GYP_DEFINES="$GYP_DEFINES fastbuild=1"
 fi
 
+export GYP_GENERATORS="ninja"
+export GYP_GENERATOR_FLAGS="output_dir=out_linux"
 
 gclient sync --force
 cd ${WEBRTC_ROOT}
-BUILD_OUT=out/Debug
+BUILD_OUT=out_linux/Debug
 ninja -C $BUILD_OUT -t clean
 ninja -v -C $BUILD_OUT all
 
@@ -43,7 +45,7 @@ $AR -q libfattycakes.a *.o
 cd $ROOT
 
 cd ${WEBRTC_ROOT}
-ARTIFACT=out/artifact
+ARTIFACT=out_linux/artifact
 rm -rf $ARTIFACT || echo "clean $ARTIFACT"
 mkdir -p $ARTIFACT/lib
 mkdir -p $ARTIFACT/include
