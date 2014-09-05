@@ -1,0 +1,17 @@
+Index: webrtc/modules/audio_device/ios/audio_device_utility_ios.cc
+===================================================================
+diff --git a/webrtc/modules/audio_device/ios/audio_device_utility_ios.cc b/webrtc/modules/audio_device/ios/audio_device_utility_ios.cc
+--- webrtc/modules/audio_device/ios/audio_device_utility_ios.cc	(revision 7089)
++++ webrtc/modules/audio_device/ios/audio_device_utility_ios.cc	(working copy)
+@@ -27,8 +27,9 @@
+ AudioDeviceUtilityIPhone::~AudioDeviceUtilityIPhone() {
+     WEBRTC_TRACE(kTraceMemory, kTraceAudioDevice, _id,
+                  "%s destroyed", __FUNCTION__);
+-    CriticalSectionScoped lock(&_critSect);
+-
++    {
++        CriticalSectionScoped lock(&_critSect);
++    }
+     delete &_critSect;
+ }
+ 
