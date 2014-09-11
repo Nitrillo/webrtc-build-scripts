@@ -125,6 +125,7 @@ done
 
 export REVISION=`svn info | grep Revision | cut -f2 -d: | tr -d ' '`
 echo "WEBRTC_REVISION=$REVISION" > build.properties
+echo "WEBRTC_VERSION=${WEBRTC_BRANCH}" >> build.properties
 
 cp -v ${WEBRTC_ROOT}/out/$BUILD_MODE/*.jar $LIBS_DEST
 
