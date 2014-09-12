@@ -6,7 +6,7 @@
 #
 PWD=`pwd`
 ROOT=$PWD
-if [ -z "${WEBRTC_BRANCH} " ]; then
+if [ -z "${WEBRTC_BRANCH}" ]; then
     WEBRTC_BRANCH=38
 fi
 WEBRTC_ROOT=$ROOT/trunk

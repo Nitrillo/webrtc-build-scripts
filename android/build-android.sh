@@ -46,7 +46,7 @@ else
 fi
 
 BASE_PATH=$(pwd)
-if [ -z "${WEBRTC_BRANCH} " ]; then
+if [ -z "${WEBRTC_BRANCH}" ]; then
     WEBRTC_BRANCH=38
 fi
 WEBRTC_ROOT=$BASE_PATH/trunk
