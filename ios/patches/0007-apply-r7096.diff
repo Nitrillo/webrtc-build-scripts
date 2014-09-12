@@ -1,0 +1,176 @@
+Index: trunk/webrtc/modules/rtp_rtcp/source/receive_statistics_impl.cc
+diff --git a/trunk/webrtc/modules/rtp_rtcp/source/receive_statistics_impl.cc b/trunk/webrtc/modules/rtp_rtcp/source/receive_statistics_impl.cc
+index e3bc95f79d27bba2e2d6668683413ba466c779b4..f063ce38e2baff7705ca14aa2ec405548d716705 100644
+--- a/trunk/webrtc/modules/rtp_rtcp/source/receive_statistics_impl.cc
++++ b/trunk/webrtc/modules/rtp_rtcp/source/receive_statistics_impl.cc
+@@ -408,36 +408,31 @@ ReceiveStatisticsImpl::~ReceiveStatisticsImpl() {
+ void ReceiveStatisticsImpl::IncomingPacket(const RTPHeader& header,
+                                            size_t bytes,
+                                            bool retransmitted) {
+-  StatisticianImplMap::iterator it;
++  StreamStatisticianImpl* impl;
+   {
+     CriticalSectionScoped cs(receive_statistics_lock_.get());
+-    it = statisticians_.find(header.ssrc);
+-    if (it == statisticians_.end()) {
+-      std::pair<StatisticianImplMap::iterator, uint32_t> insert_result =
+-          statisticians_.insert(std::make_pair(
+-              header.ssrc, new StreamStatisticianImpl(clock_, this, this)));
+-      it = insert_result.first;
++    StatisticianImplMap::iterator it = statisticians_.find(header.ssrc);
++    if (it != statisticians_.end()) {
++      impl = it->second;
++    } else {
++      impl = new StreamStatisticianImpl(clock_, this, this);
++      statisticians_[header.ssrc] = impl;
+     }
+   }
+-  it->second->IncomingPacket(header, bytes, retransmitted);
++  // StreamStatisticianImpl instance is created once and only destroyed when
++  // this whole ReceiveStatisticsImpl is destroyed. StreamStatisticianImpl has
++  // it's own locking so don't hold receive_statistics_lock_ (potential
++  // deadlock).
++  impl->IncomingPacket(header, bytes, retransmitted);
+ }
+ 
+ void ReceiveStatisticsImpl::FecPacketReceived(uint32_t ssrc) {
+   CriticalSectionScoped cs(receive_statistics_lock_.get());
+   StatisticianImplMap::iterator it = statisticians_.find(ssrc);
+-  assert(it != statisticians_.end());
+-  it->second->FecPacketReceived();
+-}
+-
+-void ReceiveStatisticsImpl::ChangeSsrc(uint32_t from_ssrc, uint32_t to_ssrc) {
+-  CriticalSectionScoped cs(receive_statistics_lock_.get());
+-  StatisticianImplMap::iterator from_it = statisticians_.find(from_ssrc);
+-  if (from_it == statisticians_.end())
+-    return;
+-  if (statisticians_.find(to_ssrc) != statisticians_.end())
+-    return;
+-  statisticians_[to_ssrc] = from_it->second;
+-  statisticians_.erase(from_it);
++  // Ignore FEC if it is the first packet.
++  if (it != statisticians_.end()) {
++    it->second->FecPacketReceived();
++  }
+ }
+ 
+ StatisticianMap ReceiveStatisticsImpl::GetActiveStatisticians() const {
+Index: trunk/webrtc/modules/rtp_rtcp/source/receive_statistics_impl.h
+diff --git a/trunk/webrtc/modules/rtp_rtcp/source/receive_statistics_impl.h b/trunk/webrtc/modules/rtp_rtcp/source/receive_statistics_impl.h
+index 4aa41f349e5a70af6e84c471f3e531a709fdda60..40ca28574295f42f142cebcefe0ae8c8d19c507e 100644
+--- a/trunk/webrtc/modules/rtp_rtcp/source/receive_statistics_impl.h
++++ b/trunk/webrtc/modules/rtp_rtcp/source/receive_statistics_impl.h
+@@ -114,8 +114,6 @@ class ReceiveStatisticsImpl : public ReceiveStatistics,
+   virtual int32_t Process() OVERRIDE;
+   virtual int32_t TimeUntilNextProcess() OVERRIDE;
+ 
+-  void ChangeSsrc(uint32_t from_ssrc, uint32_t to_ssrc);
+-
+   virtual void RegisterRtcpStatisticsCallback(RtcpStatisticsCallback* callback)
+       OVERRIDE;
+ 
+Index: trunk/webrtc/modules/rtp_rtcp/source/receive_statistics_unittest.cc
+diff --git a/trunk/webrtc/modules/rtp_rtcp/source/receive_statistics_unittest.cc b/trunk/webrtc/modules/rtp_rtcp/source/receive_statistics_unittest.cc
+index f0b9dedde5760157efba5ec81b4eb618d99636c9..5b4d0ddd2de8abaf8e56dcac8e0e471d46487121 100644
+--- a/trunk/webrtc/modules/rtp_rtcp/source/receive_statistics_unittest.cc
++++ b/trunk/webrtc/modules/rtp_rtcp/source/receive_statistics_unittest.cc
+@@ -219,41 +219,42 @@ TEST_F(ReceiveStatisticsTest, RtcpCallbacks) {
+   EXPECT_EQ(1u, callback.num_calls_);
+ }
+ 
+-TEST_F(ReceiveStatisticsTest, RtpCallbacks) {
+-  class TestCallback : public StreamDataCountersCallback {
+-   public:
+-    TestCallback()
+-        : StreamDataCountersCallback(), num_calls_(0), ssrc_(0), stats_() {}
+-    virtual ~TestCallback() {}
++class RtpTestCallback : public StreamDataCountersCallback {
++ public:
++  RtpTestCallback()
++      : StreamDataCountersCallback(), num_calls_(0), ssrc_(0), stats_() {}
++  virtual ~RtpTestCallback() {}
+ 
+-    virtual void DataCountersUpdated(const StreamDataCounters& counters,
+-                                     uint32_t ssrc) {
+-      ssrc_ = ssrc;
+-      stats_ = counters;
+-      ++num_calls_;
+-    }
++  virtual void DataCountersUpdated(const StreamDataCounters& counters,
++                                   uint32_t ssrc) {
++    ssrc_ = ssrc;
++    stats_ = counters;
++    ++num_calls_;
++  }
+ 
+-    void ExpectMatches(uint32_t num_calls,
+-                       uint32_t ssrc,
+-                       uint32_t bytes,
+-                       uint32_t padding,
+-                       uint32_t packets,
+-                       uint32_t retransmits,
+-                       uint32_t fec) {
+-      EXPECT_EQ(num_calls, num_calls_);
+-      EXPECT_EQ(ssrc, ssrc_);
+-      EXPECT_EQ(bytes, stats_.bytes);
+-      EXPECT_EQ(padding, stats_.padding_bytes);
+-      EXPECT_EQ(packets, stats_.packets);
+-      EXPECT_EQ(retransmits, stats_.retransmitted_packets);
+-      EXPECT_EQ(fec, stats_.fec_packets);
+-    }
++  void ExpectMatches(uint32_t num_calls,
++                     uint32_t ssrc,
++                     uint32_t bytes,
++                     uint32_t padding,
++                     uint32_t packets,
++                     uint32_t retransmits,
++                     uint32_t fec) {
++    EXPECT_EQ(num_calls, num_calls_);
++    EXPECT_EQ(ssrc, ssrc_);
++    EXPECT_EQ(bytes, stats_.bytes);
++    EXPECT_EQ(padding, stats_.padding_bytes);
++    EXPECT_EQ(packets, stats_.packets);
++    EXPECT_EQ(retransmits, stats_.retransmitted_packets);
++    EXPECT_EQ(fec, stats_.fec_packets);
++  }
+ 
+-    uint32_t num_calls_;
+-    uint32_t ssrc_;
+-    StreamDataCounters stats_;
+-  } callback;
++  uint32_t num_calls_;
++  uint32_t ssrc_;
++  StreamDataCounters stats_;
++};
+ 
++TEST_F(ReceiveStatisticsTest, RtpCallbacks) {
++  RtpTestCallback callback;
+   receive_statistics_->RegisterRtpStatisticsCallback(&callback);
+ 
+   const uint32_t kHeaderLength = 20;
+@@ -300,4 +301,23 @@ TEST_F(ReceiveStatisticsTest, RtpCallbacks) {
+   callback.ExpectMatches(
+       5, kSsrc1, 4 * kPacketSize1, kPaddingLength * 2, 4, 1, 1);
+ }
++
++TEST_F(ReceiveStatisticsTest, RtpCallbacksFecFirst) {
++  RtpTestCallback callback;
++  receive_statistics_->RegisterRtpStatisticsCallback(&callback);
++
++  const uint32_t kHeaderLength = 20;
++
++  // If first packet is FEC, ignore it.
++  receive_statistics_->FecPacketReceived(kSsrc1);
++  EXPECT_EQ(0u, callback.num_calls_);
++
++  header1_.headerLength = kHeaderLength;
++  receive_statistics_->IncomingPacket(
++      header1_, kPacketSize1 + kHeaderLength, false);
++  callback.ExpectMatches(1, kSsrc1, kPacketSize1, 0, 1, 0, 0);
++
++  receive_statistics_->FecPacketReceived(kSsrc1);
++  callback.ExpectMatches(2, kSsrc1, kPacketSize1, 0, 1, 0, 1);
++}
+ }  // namespace webrtc
+ 

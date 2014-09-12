@@ -11,7 +11,9 @@ export BUILD_MODE=Release
 export OUTPUT_DIR=out_osx
 
 ROOT=${SCRIPT_HOME}
-WEBRTC_BRANCH=38
+if [ -z "${WEBRTC_BRANCH} " ]; then
+    WEBRTC_BRANCH=38
+fi
 WEBRTC_ROOT=$ROOT/trunk
 
 export WEBRTC_OUT=$OUTPUT_DIR/$BUILD_MODE

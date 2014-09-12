@@ -6,7 +6,9 @@
 #
 PWD=`pwd`
 ROOT=$PWD
-WEBRTC_BRANCH=38
+if [ -z "${WEBRTC_BRANCH} " ]; then
+    WEBRTC_BRANCH=38
+fi
 WEBRTC_ROOT=$ROOT/trunk
 if [ -z $WEBRTC_REVISION ]; then
     export SYNC_REVISION=""

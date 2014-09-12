@@ -46,7 +46,9 @@ else
 fi
 
 BASE_PATH=$(pwd)
-WEBRTC_BRANCH=38
+if [ -z "${WEBRTC_BRANCH} " ]; then
+    WEBRTC_BRANCH=38
+fi
 WEBRTC_ROOT=$BASE_PATH/trunk
 gclient config https://webrtc.googlecode.com/svn/trunk
 perl -i -wpe "s/svn\/trunk/svn\/branches\/${WEBRTC_BRANCH}/g" .gclient
