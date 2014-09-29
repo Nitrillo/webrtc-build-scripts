@@ -1,0 +1,12 @@
+Index: webrtcvideocapturer.cc
+===================================================================
+diff --git a/trunk/talk/media/webrtc/webrtcvideocapturer.cc b/trunk/talk/media/webrtc/webrtcvideocapturer.cc
+--- a/trunk/talk/media/webrtc/webrtcvideocapturer.cc
++++ b/trunk/talk/media/webrtc/webrtcvideocapturer.cc
+@@ -383,5 +383,5 @@
+ }
+
+ }  // namespace cricket
+-
++OTKitWebRtcVideoCapturer* OT_allocate_WebRtcVideoCapturer() { return new OTKitWebRtcVideoCapturer; }
+ #endif  // HAVE_WEBRTC_VIDEO
