@@ -1,0 +1,18 @@
+Index: tick_util.cc
+===================================================================
+diff --git a/trunk/webrtc/system_wrappers/source/tick_util.cc b/trunk/webrtc/system_wrappers/source/tick_util.cc
+--- a/trunk/webrtc/system_wrappers/source/tick_util.cc	(revision 6802)
++++ b/trunk/webrtc/system_wrappers/source/tick_util.cc	(working copy)
+@@ -60,12 +60,7 @@
+ #endif
+ #elif defined(WEBRTC_LINUX)
+   struct timespec ts;
+-  // TODO(wu): Remove CLOCK_REALTIME implementation.
+-#ifdef WEBRTC_CLOCK_TYPE_REALTIME
+-  clock_gettime(CLOCK_REALTIME, &ts);
+-#else
+   clock_gettime(CLOCK_MONOTONIC, &ts);
+-#endif
+   result.ticks_ = 1000000000LL * static_cast<int64_t>(ts.tv_sec) +
+       static_cast<int64_t>(ts.tv_nsec);
+ #elif defined(WEBRTC_MAC)
