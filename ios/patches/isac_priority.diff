@@ -1,0 +1,16 @@
+Index: webrtcvoiceengine.cc
+===================================================================
+diff --git a/trunk/talk/media/webrtc/webrtcvoiceengine.cc b/trunk/talk/media/webrtc/webrtcvoiceengine.cc
+--- a/trunk/talk/media/webrtc/webrtcvoiceengine.cc	(revision 7512)
++++ a/trunk/talk/media/webrtc/webrtcvoiceengine.cc	(working copy)
+@@ -68,9 +68,9 @@
+ };
+ 
+ static const CodecPref kCodecPrefs[] = {
+-  { "OPUS",   48000,  2, 111, true },
+   { "ISAC",   16000,  1, 103, true },
+   { "ISAC",   32000,  1, 104, true },
++  { "OPUS",   48000,  2, 111, true },
+   { "CELT",   32000,  1, 109, true },
+   { "CELT",   32000,  2, 110, true },
+   { "G722",   16000,  1, 9,   false },
