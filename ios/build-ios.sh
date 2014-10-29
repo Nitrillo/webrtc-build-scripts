@@ -54,7 +54,9 @@ function build_fatlib
 }
 
 gclient config http://webrtc.googlecode.com/svn/trunk
-perl -i -wpe "s/svn\/trunk/svn\/branches\/${WEBRTC_BRANCH}/g" .gclient
+if [ "trunk" != ${WEBRTC_BRANCH} ]; then
+    perl -i -wpe "s/svn\/trunk/svn\/branches\/${WEBRTC_BRANCH}/g" .gclient
+fi
 
 echo "target_os = ['mac']" >> .gclient
 if [ "1" != "$NOPATCH" ]; then
