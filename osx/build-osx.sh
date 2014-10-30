@@ -43,8 +43,10 @@ gclient config http://webrtc.googlecode.com/svn/trunk
 perl -i -wpe "s/svn\/trunk/svn\/branches\/${WEBRTC_BRANCH}/g" .gclient
 
 echo "target_os = ['mac']" >> .gclient
+if [ "1" != "$NOPATCH" ]; then
 RETRY_CMD="gclient sync $SYNC_REVISION"
 retry_cmd
+fi
 $SCRIPT_HOME/get-openssl.sh
 cd ${WEBRTC_ROOT}
 export GYP_DEFINES="enable_tracing=1 build_with_libjingle=1 build_with_chromium=0 libjingle_objc=1 OS=mac target_arch=x64 use_system_ssl=1 use_openssl=0 use_nss=0"
@@ -56,6 +58,16 @@ fi
 export GYP_GENERATORS="ninja"
 export GYP_GENERATOR_FLAGS="output_dir=$OUTPUT_DIR"
 export GYP_CROSSCOMPILE=1
+if [ "1" != "$NOPATCH" ]; then
+    # hop up one level and apply patches before continuing
+    cd $ROOT
+    PATCHES=`find $PWD/patches -name *.diff`
+    PATCH_PREFIX=`git rev-parse --show-prefix`
+    for PATCH in $PATCHES; do
+        git apply --verbose --directory=${PATCH_PREFIX} ${PATCH} || { echo "patch $PATCH failed to patch! panic and die!" ; exit 1; }
+    done
+    cd $WEBRTC_ROOT
+fi
 perl -0pi -e 's/gdwarf-2/g/g' tools/gyp/pylib/gyp/xcode_emulation.py
 perl -0pi -e 's/\$\(SDKROOT\)\/usr\/lib\/libcrypto\.dylib/-lcrypto/g' talk/libjingle.gyp
 perl -0pi -e 's/\$\(SDKROOT\)\/usr\/lib\/libssl\.dylib/-lssl/g' talk/libjingle.gyp
