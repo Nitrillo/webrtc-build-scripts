@@ -3,15 +3,15 @@ Index: webrtcvideocapturer.h
 diff --git a/trunk/talk/media/webrtc/webrtcvideocapturer.h b/trunk/talk/media/webrtc/webrtcvideocapturer.h
 --- a/trunk/talk/media/webrtc/webrtcvideocapturer.h
 +++ b/trunk/talk/media/webrtc/webrtcvideocapturer.h
-@@ -102,6 +102,25 @@
+@@ -102,6 +102,26 @@
  };
-
+ 
  }  // namespace cricket
 +#define OT_allocate_WebRtcVideoCapturer_EXISTS
 +class OTKitWebRtcVideoCapturer : public cricket::WebRtcVideoCapturer
 +{
 +    public:
-
+ 
 +            OTKitWebRtcVideoCapturer() : isScreencast_(false) {}
 +
 +                virtual bool IsScreencast() const {
@@ -27,5 +27,6 @@ diff --git a/trunk/talk/media/webrtc/webrtcvideocapturer.h b/trunk/talk/media/we
 +                        bool isScreencast_;
 +};
 +OTKitWebRtcVideoCapturer* OT_allocate_WebRtcVideoCapturer();
++void OT_deallocate_WebRtcVideoCapturer(OTKitWebRtcVideoCapturer* cap);
  #endif  // HAVE_WEBRTC_VIDEO
  #endif  // TALK_MEDIA_WEBRTCVIDEOCAPTURER_H_
