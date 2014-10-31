@@ -44,9 +44,11 @@ perl -i -wpe "s/svn\/trunk/svn\/branches\/${WEBRTC_BRANCH}/g" .gclient
 
 echo "target_os = ['mac']" >> .gclient
 if [ "1" != "$NOPATCH" ]; then
-RETRY_CMD="gclient sync $SYNC_REVISION"
+RETRY_CMD="gclient revert"
 retry_cmd
 fi
+RETRY_CMD="gclient sync $SYNC_REVISION"
+retry_cmd
 $SCRIPT_HOME/get-openssl.sh
 cd ${WEBRTC_ROOT}
 export GYP_DEFINES="enable_tracing=1 build_with_libjingle=1 build_with_chromium=0 libjingle_objc=1 OS=mac target_arch=x64 use_system_ssl=1 use_openssl=0 use_nss=0"
