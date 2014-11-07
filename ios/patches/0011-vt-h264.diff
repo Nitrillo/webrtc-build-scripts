@@ -54,11 +54,3 @@ diff --git a/trunk/talk/media/webrtc/webrtcvideoengine.cc b/trunk/talk/media/web
  const int kDefaultFramerate = 30;
  const int kMinVideoBitrate = 30;
  const int kStartVideoBitrate = 300;
-@@ -832,6 +833,7 @@
- 
- const WebRtcVideoEngine::VideoCodecPref
-     WebRtcVideoEngine::kVideoCodecPrefs[] = {
-+    {kH264CodecName, 127, -1, 0},        
-     {kVp8CodecName, 100, -1, 0},
-     {kRedCodecName, 116, -1, 1},
-     {kUlpfecCodecName, 117, -1, 2},
