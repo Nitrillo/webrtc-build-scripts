@@ -54,3 +54,21 @@ diff --git a/trunk/talk/media/webrtc/webrtcvideoengine.cc b/trunk/talk/media/web
  const int kDefaultFramerate = 30;
  const int kMinVideoBitrate = 30;
  const int kStartVideoBitrate = 300;
+@@ -832,6 +833,7 @@
+ 
+ const WebRtcVideoEngine::VideoCodecPref
+     WebRtcVideoEngine::kVideoCodecPrefs[] = {
++    {kH264CodecName, 127, -1, 0},
+     {kVp8CodecName, 100, -1, 0},
+     {kRedCodecName, 116, -1, 1},
+     {kUlpfecCodecName, 117, -1, 2},
+@@ -1392,7 +1394,8 @@
+       VideoCodec codec(pref.payload_type, pref.name,
+                        in_codec.width, in_codec.height, in_codec.framerate,
+                        static_cast<int>(ARRAY_SIZE(kVideoCodecPrefs) - i));
+-      if (_stricmp(kVp8CodecName, codec.name.c_str()) == 0) {
++      if (_stricmp(kVp8CodecName, codec.name.c_str()) == 0 ||
++          _stricmp(kH264CodecName, codec.name.c_str()) == 0) {
+         AddDefaultFeedbackParams(&codec);
+       }
+       if (pref.associated_payload_type != -1) {
