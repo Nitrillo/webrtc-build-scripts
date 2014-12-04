@@ -1,0 +1,16 @@
+Index: jsepsessiondescription.cc
+===================================================================
+diff --git a/trunk/talk/app/webrtc/jsepsessiondescription.cc b/trunk/talk/app/webrtc/jsepsessiondescription.cc
+--- a/trunk/talk/app/webrtc/jsepsessiondescription.cc
++++ b/trunk/talk/app/webrtc/jsepsessiondescription.cc
+@@ -60,8 +60,8 @@
+ const int JsepSessionDescription::kDefaultVideoCodecFramerate = 30;
+ const char JsepSessionDescription::kDefaultVideoCodecName[] = "VP8";
+ // Used as default max video codec size before we have it in signaling.
+-const int JsepSessionDescription::kMaxVideoCodecWidth = 1920;
+-const int JsepSessionDescription::kMaxVideoCodecHeight = 1080;
++const int JsepSessionDescription::kMaxVideoCodecWidth = 1280;
++const int JsepSessionDescription::kMaxVideoCodecHeight = 720;
+ const int JsepSessionDescription::kDefaultVideoCodecPreference = 1;
+
+ SessionDescriptionInterface* CreateSessionDescription(const std::string& type,

@@ -46,7 +46,9 @@ else
 fi
 
 BASE_PATH=$(pwd)
-WEBRTC_BRANCH=3.54
+if [ -z "${WEBRTC_BRANCH}" ]; then
+    WEBRTC_BRANCH=38
+fi
 WEBRTC_ROOT=$BASE_PATH/trunk
 gclient config https://webrtc.googlecode.com/svn/trunk
 perl -i -wpe "s/svn\/trunk/svn\/branches\/${WEBRTC_BRANCH}/g" .gclient
@@ -125,6 +127,7 @@ done
 
 export REVISION=`svn info | grep Revision | cut -f2 -d: | tr -d ' '`
 echo "WEBRTC_REVISION=$REVISION" > build.properties
+echo "WEBRTC_VERSION=${WEBRTC_BRANCH}" >> build.properties
 
 cp -v ${WEBRTC_ROOT}/out/$BUILD_MODE/*.jar $LIBS_DEST
 

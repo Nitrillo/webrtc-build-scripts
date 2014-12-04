@@ -1,0 +1,64 @@
+Index: webrtcsession.cc
+===================================================================
+diff --git a/trunk/talk/app/webrtc/webrtcsession.cc b/trunk/talk/app/webrtc/webrtcsession.cc
+--- a/trunk/talk/app/webrtc/webrtcsession.cc	(revision 7472)
++++ a/trunk/talk/app/webrtc/webrtcsession.cc	(working copy)
+@@ -55,6 +55,11 @@
+ using cricket::SessionDescription;
+ using cricket::TransportInfo;
+ 
++static bool enable_h264 = false;
++void set_h264_as_default_codec(bool value) {
++    enable_h264 = value;
++}
++
+ namespace webrtc {
+ 
+ // Error messages
+@@ -626,13 +631,22 @@
+       MediaConstraintsInterface::kOpusFec,
+       &audio_options_.opus_fec);
+ 
+-  const cricket::VideoCodec default_codec(
++  cricket::VideoCodec default_codec(
+       JsepSessionDescription::kDefaultVideoCodecId,
+       JsepSessionDescription::kDefaultVideoCodecName,
+       JsepSessionDescription::kMaxVideoCodecWidth,
+       JsepSessionDescription::kMaxVideoCodecHeight,
+       JsepSessionDescription::kDefaultVideoCodecFramerate,
+       JsepSessionDescription::kDefaultVideoCodecPreference);
++    
++  if (enable_h264 == true)
++  {
++    static const char kH264PayloadName[] = "H264";
++    static const int kH264PayloadId = 120;
++    default_codec.id = kH264PayloadId ;
++    default_codec.name = kH264PayloadName;
++  }
++    
+   channel_manager_->SetDefaultVideoEncoderConfig(
+       cricket::VideoEncoderConfig(default_codec));
+ 
+Index: webrtcvideoengine.cc
+===================================================================
+diff --git a/trunk/talk/media/webrtc/webrtcvideoengine.cc b/trunk/talk/media/webrtc/webrtcvideoengine.cc
+--- a/trunk/talk/media/webrtc/webrtcvideoengine.cc	(revision 7472)
++++ a/trunk/talk/media/webrtc/webrtcvideoengine.cc	(working copy)
+@@ -73,7 +73,8 @@
+ const int kVideoRtpBufferSize = 65536;
+ 
+ const char kVp8CodecName[] = "VP8";
+-
++const char kH264CodecName[] = "H264";
++    
+ const int kDefaultFramerate = 30;
+ const int kMinVideoBitrate = 30;
+ const int kStartVideoBitrate = 300;
+@@ -832,6 +833,7 @@
+ 
+ const WebRtcVideoEngine::VideoCodecPref
+     WebRtcVideoEngine::kVideoCodecPrefs[] = {
++    {kH264CodecName, 127, -1, 0},        
+     {kVp8CodecName, 100, -1, 0},
+     {kRedCodecName, 116, -1, 1},
+     {kUlpfecCodecName, 117, -1, 2},

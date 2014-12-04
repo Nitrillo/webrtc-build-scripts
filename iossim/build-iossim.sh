@@ -6,7 +6,9 @@
 #
 PWD=`pwd`
 ROOT=$PWD
-WEBRTC_BRANCH=3.54
+if [ -z "${WEBRTC_BRANCH}" ]; then
+    WEBRTC_BRANCH=38
+fi
 WEBRTC_ROOT=$ROOT/trunk
 
 if [ -z $WEBRTC_REVISION ]; then
@@ -30,7 +32,7 @@ function retry_cmd
         RETRIES=`expr $RETRIES - 1`
     done
     set -e
-    if [ $RETCODE -ne 0]; then
+    if [ $RETCODE -ne 0 ]; then
 	exit $RETCODE
     fi
 }
@@ -80,7 +82,7 @@ done
 
 cd $WEBRTC_ROOT
 gclient runhooks
-ninja -v -C $OUTPUT_DIR/$CONFIGURATION AppRTCDemo || { echo "ninja build failed. booooooooo."; }
+ninja -v -C $OUTPUT_DIR/$CONFIGURATION AppRTCDemo
 
 AR=`xcrun -f ar`
 
