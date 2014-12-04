@@ -1,7 +1,8 @@
 Index: talk/app/webrtc/webrtcsession.cc
 ===================================================================
---- talk/app/webrtc/webrtcsession.cc	(revision 6922)
-+++ talk/app/webrtc/webrtcsession.cc	(working copy)
+diff --git a/trunk/talk/app/webrtc/webrtcsession.cc b/trunk/talk/app/webrtc/webrtcsession.cc
+--- a/trunk/talk/app/webrtc/webrtcsession.cc	(revision 6922)
++++ b/trunk/talk/app/webrtc/webrtcsession.cc	(working copy)
 @@ -224,30 +224,28 @@
    cricket::StreamParams stream_out;
    const cricket::ContentInfo* audio_info =
